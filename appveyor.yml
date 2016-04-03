@@ -1,0 +1,41 @@
+build: false
+shallow_clone: false
+platform:
+  - x86
+  - x64
+clone_folder: c:\projects\phing
+
+cache:
+  - '%LOCALAPPDATA%\Composer'
+
+environment:
+  global:
+    COMPOSER_NO_INTERACTION: 1
+
+init:
+  - SET PATH=c:\tools\php;%PATH%
+  - SET ANSICON=121x90 (121x90)
+
+install:
+  - cinst -y OpenSSL.Light
+  - cinst -y php
+  - cd c:\tools\php
+  - appveyor DownloadFile https://pear.php.net/go-pear.phar
+  - ps: >-
+      echo "system`r`n`r`ny`r`n"
+      | php go-pear.phar
+  - copy php.ini-production php.ini /Y
+  - echo date.timezone="UTC" >> php.ini
+  - echo extension_dir=ext >> php.ini
+  - echo extension=php_openssl.dll >> php.ini
+  - echo extension=php_pdo_sqlite.dll >> php.ini
+  - echo memory_limit=1024M >> php.ini
+  - echo @php %%~dp0composer.phar %%* > composer.bat
+  - appveyor DownloadFile https://getcomposer.org/composer.phar
+  - cd c:\projects\phing
+  #- composer install --prefer-source --no-progress
+
+test_script:
+  - cd c:\projects\phing
+  - cd test
+  - ..\bin\phing
